@@ -14,7 +14,18 @@ type AvailabilityResult = {
   max_duration_minutes: number;
 };
 
-async function listAvailability(date: string, time: string, duration: number, sport?: string, clubName?: string): Promise<AvailabilityResult[]> {
+function parseNumericIds(input: string): number[] {
+  return input
+    .split(',')                    // split by comma
+    .map(id => id.trim())          // remove extra spaces
+    .filter(id => /^\d+$/.test(id))// keep only numeric strings (no letters, decimals, etc.)
+    .map(Number);                  // convert to numbers
+}
+
+async function listAvailability(date: string, time: string, duration: number, sport?: string, club?: string): Promise<AvailabilityResult[]> {
+  const sportIds = sport ? parseNumericIds(sport) : [];
+  const clubIds = club ? parseNumericIds(club) : [];
+
   const data = await sql<AvailabilityResult[]>`
     SELECT
       a.booking_date,
@@ -31,8 +42,8 @@ async function listAvailability(date: string, time: string, duration: number, sp
     WHERE a.booking_date = ${date}
       AND a.start_time >= ${time}
       AND a.max_duration_minutes >= ${duration}
-      ${sport ? sql`AND s.name ILIKE ${'%' + sport + '%'}` : sql``}
-      ${clubName ? sql`AND c.name ILIKE ${'%' + clubName + '%'}` : sql``}
+      ${sportIds.length ? sql`AND s.id = ANY(${[sportIds]})` : sql``}
+      ${clubIds.length ? sql`AND c.id = ANY(${[clubIds]})` : sql``}
     ORDER BY a.start_time;
   `;
 
@@ -41,6 +52,8 @@ async function listAvailability(date: string, time: string, duration: number, sp
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+
+  //return Response.json({});
 
   const SearchSchema = z.object({
     date: z.string().refine(val => {return isDateValid(parseISO(val));}, {message: 'invalid date'}),

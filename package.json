@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^9.0.2",
+    "@upstash/redis": "^1.35.0",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "next": "15.3.4",
     "postgres": "^3.4.7",
     "react": "^19.0.0",
