@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { isValid as isDateValid, parseISO } from 'date-fns';
 import postgres from 'postgres';
+import { performance } from 'perf_hooks';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -51,9 +52,8 @@ async function listAvailability(date: string, time: string, duration: number, sp
 }
 
 export async function GET(request: Request) {
+  const t0 = performance.now();
   const { searchParams } = new URL(request.url);
-
-  //return Response.json({});
 
   const SearchSchema = z.object({
     date: z.string().refine(val => {return isDateValid(parseISO(val));}, {message: 'invalid date'}),
@@ -79,7 +79,10 @@ export async function GET(request: Request) {
 
   try {
     const availability = await listAvailability(date, time, duration, sport, club);
-  	return Response.json(availability);
+
+    const t1 = performance.now();
+    console.log(`🚀 exec time ${(t1 - t0).toFixed(2)} ms`);
+    return Response.json(availability);
   } catch (error) {
     console.error('DB error in listAvailability():', error);
   	return Response.json(

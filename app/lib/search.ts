@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { parseISO, isValid as isDateValid, format } from 'date-fns';
 import { es } from '@/app/lib/es';
 import { performance } from 'perf_hooks';
+import { sleep } from './utils';
 
 function parseCSV(input?: string): string[] {
   return input?.split(',').map(s => s.trim()).filter(Boolean) ?? [];
@@ -46,7 +47,7 @@ function buildQuery({
   };
 
   // NLP fallback using full-text fields
-  if (q) {
+  if (q && q.trim() !== '') {
     query.bool.must.push({
       multi_match: {
         query: q,
@@ -58,7 +59,7 @@ function buildQuery({
     // Structured filter queries
     if (date.length === 1) {
       query.bool.filter.push({
-        range: { date: { gte: date[0] } }
+        term: { date: date[0] }
       });
     } else if (date.length > 1) {
       query.bool.filter.push({
@@ -94,14 +95,14 @@ function buildQuery({
   return query;
 }
 
-export async function GET(request: Request) {
+export async function search(searchParams: Record<string, unknown>) {
+  //await sleep(3000);
   const t0 = performance.now();
-  const { searchParams } = new URL(request.url);
 
   const schema = z.object({
     q: z.string().optional(),
     date: z.string().optional(),
-    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'invalid time format').optional().default('00:00'),
+    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'invalid time format').optional(),
     duration: z.coerce.number().min(1, { message: 'duration must be more than 0' }).optional(),
     sport: z.string().optional(), // comma-separated sport names e.g. "Tennis,Padel"
     club: z.string().optional(),  // comma-separated club names e.g. "Bondi Tennis Club,Manly Sports"
@@ -110,7 +111,7 @@ export async function GET(request: Request) {
     radius: z.coerce.number().optional(),
   });
 
-  const parsed = schema.safeParse(Object.fromEntries(searchParams));
+  const parsed = schema.safeParse(searchParams);
   if (!parsed.success) {
     return Response.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
@@ -118,7 +119,7 @@ export async function GET(request: Request) {
   const { q, date, time, duration, sport, club } = parsed.data;
 
   let dates = parseValidDates(date);
-  const timeMins = timeStrToMinutes(time);
+  const timeMins = time ? timeStrToMinutes(time) : undefined;
   const sportNames = parseCSV(sport?.toLowerCase());
   const clubNames = parseCSV(club?.toLowerCase());
 
@@ -129,7 +130,7 @@ export async function GET(request: Request) {
     dates = [format(new Date(), 'yyyy-MM-dd')]; // default to today
   }
 
-  console.log(q, dates, timeMins, duration, sportNames, clubNames);
+  console.log(`'${q}'`, dates, timeMins, duration, sportNames, clubNames);
 
   const query = buildQuery({
     q,
@@ -140,21 +141,23 @@ export async function GET(request: Request) {
     clubNames
   });
 
+  console.log('ES query', JSON.stringify(query));
+
   try {
     const response = await es.search({
       index: 'availability', // this can be an alias
       size: 100,
       query,
-      sort: [{ start_time: 'asc' }]
+      sort: [{ date: 'asc', start_time: 'asc' }]
     });
 
-    const t1 = performance.now();
-    console.log(`🚀 exec time ${(t1 - t0).toFixed(2)} ms`);
-
     const records = response.hits.hits.map(hit => hit._source);
-    return Response.json(records);
+    return records;
   } catch (err) {
     console.error('❌ ES query failed:', err);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
+  } finally{
+    const t1 = performance.now();
+    console.log(`🚀 exec time ${(t1 - t0).toFixed(2)} ms`);
   }
 }
