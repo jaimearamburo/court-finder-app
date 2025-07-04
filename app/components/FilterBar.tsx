@@ -82,7 +82,7 @@ export function SelectDuration({
 }) {
   return (
     <Select onValueChange={(d) => {onSelectDuration(d)}} value={duration}>
-      <SelectTrigger className="w-[80px]">
+      <SelectTrigger className="w-[100px]">
         <SelectValue placeholder="Duration" />
       </SelectTrigger>
       <SelectContent>
