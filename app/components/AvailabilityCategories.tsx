@@ -18,7 +18,7 @@ export default function AvailabilityCategories() {
   const { searchFilters, setSearchFilters } = use(SearchFiltersContext);
 
   const selectedSports = (searchFilters.sport || '').split(',').filter(Boolean);
-  console.log('selected sports', selectedSports);
+  //console.log('selected sports', selectedSports);
 
   const handleSelectSport = (sportName: string) => {
     const updated = selectedSports.includes(sportName)

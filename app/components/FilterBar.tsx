@@ -153,7 +153,6 @@ export default function FilterBar({ className = '' }) {
 
     // Add each filter to the URL query string
     Object.entries(searchFilters).forEach(([key, value]) => {
-      console.log(key, value);
       if (value) {
         params.set(key, String(value));
       }

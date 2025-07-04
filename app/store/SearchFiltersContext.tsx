@@ -53,7 +53,7 @@ export function SearchFiltersContextProvider({ children }: { children: ReactNode
       duration: searchParams.get('duration') || DEFAULT_SEARCH_FILTERS.duration,
     };
 
-    console.log('hydrating filters', hydratedFilters);
+    //console.log('hydrating filters', hydratedFilters);
 
     setSearchFilters(hydratedFilters);
   }, []); // re-run when the URL query string changes
