@@ -2,35 +2,35 @@ import { Search } from "lucide-react";
 
 export default function Header() {
   return (
-    <header className="w-full border-b border-gray-100 bg-white px-6 py-4">
-      <div className="flex max-w-7xl mx-auto items-center justify-between">
+    <header className="w-full md:border-b border-gray-100 bg-white p-2 md:px-4 md:py-4">
+      <div className="flex max-w-7xl mx-auto items-center w-full">
         
         {/* Left Section: Logo + Location */}
-        <div className="flex items-center gap-4 flex-1">
+        <div className="hidden md:flex items-center gap-4">
           {/* App Logo or Name */}
-          <span className="font-bold text-xl">CourtFinder</span>
+          <span className="hidden md:block font-bold text-xl">CourtFinder</span>
 
           {/* Location (hidden on small screens) */}
-          <div className="hidden sm:block text-sm text-gray-600">
+          {/* <div className="hidden sm:block text-sm text-gray-600">
             📍 3 Baden Street
-          </div>
+          </div> */}
         </div>
 
         {/*   Center Section: Search Bar */}
-        <div className="flex-1 md:flex justify-center">
-          <div className="md:flex items-center bg-gray-100 rounded-lg px-4 py-3 w-full">
+        <div className="flex flex-grow md:max-w-lg justify-center md:ml-5">
+          <div className="flex items-center bg-gray-100 rounded-lg p-5 md:px-4 md:py-3 w-full shadow-lg">
             <Search className="h-5 w-5 text-gray-400 mr-3" />
             <input
               type="text"
-              placeholder="Search sports, locations, times..."
-              className="bg-transparent text-gray-700 placeholder-gray-500 outline-none flex-1"
+              placeholder="Search by text coming soon..."
+              className="bg-transparent text-gray-700 placeholder-gray-500 outline-none flex-1 w-full"
               autoFocus
             />
           </div>
         </div>
 
         {/* Right Section: Cart + Auth Buttons */}
-        <div className="flex items-center gap-4 flex-1 justify-end">
+        <div className="flex items-center justify-end whitespace-nowrap border-2">
           {/* Cart icon with badge */}
           {/* <div className="relative">
             <button>🛒</button>

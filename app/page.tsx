@@ -28,14 +28,14 @@ export default async function Page({
    <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="px-6 py-4">
+      <main className="p-2 md:px-4 md:py-4">
         <div className="max-w-7xl mx-auto">
           <SearchFiltersContextProvider>
             {/* Selectable filters */ }
-            <section className="bg-white px-0 py-3">
+            <section className="bg-white px-0 md:py-3">
               <AvailabilityCategories />
             </section>
-            <section className="bg-white px-0 py-3 mb-2">
+            <section className="bg-white px-0 py-2 md:py-3 md:mb-2">
               <FilterBar />
             </section>
             

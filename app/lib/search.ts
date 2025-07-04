@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { parseISO, isValid as isDateValid, format } from 'date-fns';
 import { es } from '@/app/lib/es';
-import { performance } from 'perf_hooks';
+// import { performance } from 'perf_hooks';
 import { sleep } from './utils';
 
 function parseCSV(input?: string): string[] {
@@ -22,6 +22,23 @@ function parseValidDates(input?: string): string[] {
 function timeStrToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number);
   return h * 60 + m;
+}
+
+function buildGrouping(){
+  const aggs = {
+    group_by_fields: {
+      composite: {
+        size: 500, // number of unique groups per page
+        sources: [
+          { club: { terms: { field: 'club_name.keyword' } } },
+          { sport: { terms: { field: 'sport_name.keyword' } } },
+          { date: { terms: { field: 'date' } } }
+        ] as const
+      }
+    }
+  }
+
+  return aggs;
 }
 
 function buildQuery({
@@ -95,15 +112,19 @@ function buildQuery({
   return query;
 }
 
-export async function search(searchParams: Record<string, unknown>) {
+export async function searchSlots(searchParams: Record<string, unknown>) {
+
+}
+
+export async function searchGrouped(searchParams: Record<string, unknown>) {
   //await sleep(3000);
-  const t0 = performance.now();
+  // const t0 = performance.now();
 
   const schema = z.object({
     q: z.string().optional(),
-    date: z.string().optional(),
-    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'invalid time format').optional(),
-    duration: z.coerce.number().min(1, { message: 'duration must be more than 0' }).optional(),
+    date: z.string().optional().default(format(new Date(), 'yyyy-MM-dd')),
+    time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'invalid time format').optional().default("00:00"),
+    duration: z.coerce.number().min(1, { message: 'duration must be more than 0' }).optional().default(60),
     sport: z.string().optional(), // comma-separated sport names e.g. "Tennis,Padel"
     club: z.string().optional(),  // comma-separated club names e.g. "Bondi Tennis Club,Manly Sports"
     lat: z.coerce.number().optional(),
@@ -113,7 +134,8 @@ export async function search(searchParams: Record<string, unknown>) {
 
   const parsed = schema.safeParse(searchParams);
   if (!parsed.success) {
-    return Response.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
+    //return Response.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
+      throw new Error('Invalid search parameters: ' + JSON.stringify(parsed.error.flatten().fieldErrors));
   }
 
   const { q, date, time, duration, sport, club } = parsed.data;
@@ -130,7 +152,7 @@ export async function search(searchParams: Record<string, unknown>) {
     dates = [format(new Date(), 'yyyy-MM-dd')]; // default to today
   }
 
-  console.log(`'${q}'`, dates, timeMins, duration, sportNames, clubNames);
+  //console.log(`'${q}'`, dates, timeMins, duration, sportNames, clubNames);
 
   const query = buildQuery({
     q,
@@ -141,23 +163,44 @@ export async function search(searchParams: Record<string, unknown>) {
     clubNames
   });
 
+  const aggs = buildGrouping();
+  //console.log(aggs);
+
   console.log('ES query', JSON.stringify(query));
 
   try {
     const response = await es.search({
-      index: 'availability', // this can be an alias
-      size: 100,
+      index: 'availability', // availability alias, points to the latest availability snapshot
       query,
-      sort: [{ date: 'asc', start_time: 'asc' }]
+      size: 0,
+      sort: [{ date: 'asc' }],
+      aggs: {
+        "agg_club_sport_date": {
+          "terms": {
+            "field": "agg_club_sport_date",
+            "size": 1000
+          },
+        "aggs": {
+          "start_times": {
+            "terms": {
+              "field": "start_time",
+              "size": 100
+            }
+          }
+        }
+        }
+      }
     });
 
-    const records = response.hits.hits.map(hit => hit._source);
+    //const records = response.hits.hits.map(hit => hit._source);
+    const records = (response.aggregations?.agg_club_sport_date as any)?.buckets || [];
+    //console.log(JSON.stringify(records));
     return records;
   } catch (err) {
     console.error('❌ ES query failed:', err);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   } finally{
-    const t1 = performance.now();
-    console.log(`🚀 exec time ${(t1 - t0).toFixed(2)} ms`);
+    // const t1 = performance.now();
+    // console.log(`🚀 exec time ${(t1 - t0).toFixed(2)} ms`);
   }
 }
