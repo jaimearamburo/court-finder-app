@@ -6,6 +6,7 @@ const clubsLinks = [
   { name: 'Surry Hills', link: 'https://jensenstennis.intrac.com.au/tennis/book.cfm?facility=1' },
   { name: 'Rushcutters', link: 'https://www.rushcuttersbaytennis.com.au/book-a-court/' },
   { name: 'Mutch', link: 'https://www.mutchparksports.com.au/tennis/' },
+  { name: 'Primrose', link: 'https://www.tennisvenues.com.au/booking/primrose-park-tc' },
 ];
 
 export interface ResultCardProps {
