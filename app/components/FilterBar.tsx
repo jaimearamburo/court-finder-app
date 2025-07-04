@@ -161,7 +161,7 @@ export default function FilterBar({ className = '' }) {
     params.set('v', randomCharString(2));
 
     setIsSearching(true);
-    replace(`${pathname}?${params.toString().toLowerCase()}`);
+    replace(`${pathname}?${params.toString().toLowerCase()}`,{ scroll: false });
   };
 
   return (
