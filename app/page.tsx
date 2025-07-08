@@ -42,13 +42,13 @@ export default async function Page({
             {/* Hero Section */ }
             <Hero />
 
-            <LoadingFallback fallback={<ResultGridSkeleton />}>
-              <Suspense key={resultsSuspenseKey} fallback={null}>
+            {/* <LoadingFallback fallback={<ResultGridSkeleton />}> */}
+              <Suspense key={resultsSuspenseKey} fallback={<ResultGridSkeleton />}>
                 <ResultGridWrapper>
                   <ResultGrid searchParams={resolvedParams} />
                 </ResultGridWrapper>
               </Suspense>
-            </LoadingFallback>
+            {/* </LoadingFallback> */}
           </SearchFiltersContextProvider>
         </div>
       </main>
