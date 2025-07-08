@@ -7,6 +7,12 @@ const clubsLinks = [
   { name: 'Rushcutters', link: 'https://www.rushcuttersbaytennis.com.au/book-a-court/' },
   { name: 'Mutch', link: 'https://www.mutchparksports.com.au/tennis/' },
   { name: 'Primrose', link: 'https://www.tennisvenues.com.au/booking/primrose-park-tc' },
+  { name: 'Lyne', link: 'http://www.lptc.com.au/courthire' },
+  { name: 'Trumper', link: 'https://www.wentworthtennis.com/court_hire' },
+  { name: 'Little Alfred', link: 'https://www.littlealfredtennis.com.au/booknow' },
+  { name: 'Langham', link: 'https://langham.intrac.com.au/tennis/book.cfm' },
+  { name: 'Alexandria', link: 'https://jensenstennis.intrac.com.au/tennis/book.cfm?facility=2' },
+  { name: 'Glebe', link: 'https://jensenstennis.intrac.com.au/tennis/book.cfm?facility=4' },
 ];
 
 export interface ResultCardProps {
@@ -129,7 +135,7 @@ export default function ResultCard({ clubId, clubName, sportName, date, imgSrc, 
                   key={time}
                   className={`inline-block text-xs px-2 py-0.5 rounded-[3px] font-mono
                     ${ parseTimeStringToMinutes(requestedStartTime) === time
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-green-600 text-white'
                       : 'bg-gray-700 text-gray-200'}`}
                 >
                   {formatTime(time)}

@@ -2,7 +2,6 @@
 
 import { use, useState }  from 'react'
 import { SearchFiltersContext } from '@/app/store/SearchFiltersContext';
-import { usePathname, useRouter } from 'next/navigation';
 import { ChevronDownIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -87,7 +86,7 @@ export function SelectDuration({
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectItem value="30">30 min</SelectItem>
+          {/* <SelectItem value="30">30 min</SelectItem> */}
           <SelectItem value="60">1 h</SelectItem>
           <SelectItem value="90"> 1.5 h</SelectItem>
           <SelectItem value="120">2 h</SelectItem>
@@ -106,19 +105,7 @@ export default function FilterBar({ className = '' }) {
     throw new Error("SearchFiltersContext not found — make sure the provider is wrapped.");
   }
 
-  const { searchFilters, setSearchFilters, isSearching, setIsSearching } = searchFiltersContext;
-  
-  const pathname = usePathname();
-  const { replace } = useRouter();
-
-  function randomCharString(l: number) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < l; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
+  const { searchFilters, setSearchFilters, isSearching, setIsSearching, query } = searchFiltersContext;
 
   function handleSelectDate(date: Date | undefined){
     if (!date) return;
@@ -148,22 +135,6 @@ export default function FilterBar({ className = '' }) {
     }));
   }
 
-  const handleApplyFilters = () => {
-    const params = new URLSearchParams();
-
-    // Add each filter to the URL query string
-    Object.entries(searchFilters).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, String(value));
-      }
-    });
-
-    params.set('v', randomCharString(2));
-
-    setIsSearching(true);
-    replace(`${pathname}?${params.toString().toLowerCase()}`,{ scroll: false });
-  };
-
   return (
     <section className={`w-full ${className}`}>
         <div className="flex flex-wrap gap-2">
@@ -178,14 +149,14 @@ export default function FilterBar({ className = '' }) {
                 : undefined
             }
             time={
-              searchFilters.time ?? '00:00'
+              searchFilters.time ?? ''
             }
             onSelectDate={handleSelectDate}
             onSelectTime={handleSelectTime}
           />
-          <SelectDuration duration={searchFilters.duration ?? '60'} onSelectDuration={handleSelectDuration} />
+          <SelectDuration duration={searchFilters.duration ?? ''} onSelectDuration={handleSelectDuration} />
 
-          <button
+          {/* <button
             onClick={handleApplyFilters}
             disabled={isSearching}
             className={`px-5 py-3 md:px-4 md:py-2 rounded-md text-sm text-white cursor-pointer ${
@@ -195,7 +166,7 @@ export default function FilterBar({ className = '' }) {
             }`}
           >
             Search
-          </button>
+          </button> */}
         </div>
     </section>
   );

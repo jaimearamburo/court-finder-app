@@ -7,11 +7,15 @@ export default async function ResultGrid({
 }: {
   searchParams: Record<string, string | undefined>,
 }) {
+  const { records: data, parsedDate, parsedTime } = await searchGrouped(searchParams);
+  const typedData = data as ResultCardProps[];
 
-  const data = (await searchGrouped(searchParams)) as ResultCardProps[];
-  const requestedStartTime = typeof searchParams.time === 'string' ? searchParams.time : undefined;
+  const requestedStartTime = parsedTime ?? (typeof searchParams.time === 'string' ? searchParams.time : undefined);
+  
+  // console.log(parsedDate);
+  // console.log(requestedStartTime);
 
-  const records = data.map((record: any) => {
+  const records = typedData.map((record: any) => {
     const [clubId, clubName, sportName, date, imgSrc] = record.key.split(':::');
     
     const availableTimes = (record.start_times?.buckets ?? [])

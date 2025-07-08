@@ -1,7 +1,10 @@
 'use client'
 
-import { createContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { isValidQ } from '../lib/utils';
+import { useDebounce } from 'use-debounce';
+import { usePathname, useRouter } from 'next/navigation';
 
 export interface SearchFilters {
   sport?: string;     // sport: csv list of sports
@@ -16,6 +19,7 @@ type ContextType = {
   setSearchFilters: React.Dispatch<React.SetStateAction<SearchFilters>>;
   isSearching: boolean;
   setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
+  query: string;
 };
 
 const getTodayDateString = () => {
@@ -35,17 +39,52 @@ export const SearchFiltersContext = createContext<ContextType>({
   setSearchFilters: () => {},
   isSearching: false,
   setIsSearching: () => {},
+  query: '',
 });
 
 export function SearchFiltersContextProvider({ children }: { children: ReactNode }) {
   const [searchFilters, setSearchFilters] = useState<SearchFilters>(DEFAULT_SEARCH_FILTERS);
   const [isSearching, setIsSearching] = useState<boolean>(true);
+  const [query, setQuery] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  // Debounce the filters for 200ms
+  const [debouncedFilters] = useDebounce(searchFilters, 250);
+  const firstRun = useRef(true);
+
+  useEffect(() => {
+    if (!isHydrated) return;           // Wait for hydration to complete
+    if (firstRun.current) {            // Also skip first run *after* hydration
+      firstRun.current = false;
+      return;
+    }
+
+    //console.log('debounced filters', debouncedFilters);
+    handleApplyFilters();
+  }, [debouncedFilters]);
 
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!searchParams) return;
 
+    const q = searchParams.get('q');
+
+    if (isValidQ(q)) {
+      setQuery(q!.trim()); // Set the query string
+      setSearchFilters({
+        sport: undefined,
+        date: undefined,
+        time: undefined,
+        duration: undefined,
+      });
+      return;
+    }
+
+    // Hydrate structured filters if q is not present or invalid
     const hydratedFilters: SearchFilters = {
       sport: searchParams.get('sport') || DEFAULT_SEARCH_FILTERS.sport,
       date: searchParams.get('date') || DEFAULT_SEARCH_FILTERS.date,
@@ -53,16 +92,43 @@ export function SearchFiltersContextProvider({ children }: { children: ReactNode
       duration: searchParams.get('duration') || DEFAULT_SEARCH_FILTERS.duration,
     };
 
-    //console.log('hydrating filters', hydratedFilters);
-
     setSearchFilters(hydratedFilters);
-  }, []); // re-run when the URL query string changes
+    setIsHydrated(true);
+
+    //console.log('hydrating filters from url', searchFilters);
+  }, []);
+
+  function randomCharString(l: number) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < l; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams();
+
+    // Add each filter to the URL query string
+    Object.entries(searchFilters).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, String(value));
+      }
+    });
+
+    params.set('v', randomCharString(2));
+
+    setIsSearching(true);
+    replace(`${pathname}?${params.toString().toLowerCase()}`,{ scroll: false });
+  };
 
   const contextValue = {
     searchFilters,
     setSearchFilters,
     isSearching,
-    setIsSearching
+    setIsSearching,
+    query,
   };
 
   return (

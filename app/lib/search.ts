@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { parseISO, isValid as isDateValid, format } from 'date-fns';
 import { es } from '@/app/lib/es';
 // import { performance } from 'perf_hooks';
-import { sleep } from './utils';
+//import { sleep } from './utils';
+import { extractDateTime } from './dateparse';
 
 function parseCSV(input?: string): string[] {
   return input?.split(',').map(s => s.trim()).filter(Boolean) ?? [];
@@ -24,23 +25,6 @@ function timeStrToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-function buildGrouping(){
-  const aggs = {
-    group_by_fields: {
-      composite: {
-        size: 500, // number of unique groups per page
-        sources: [
-          { club: { terms: { field: 'club_name.keyword' } } },
-          { sport: { terms: { field: 'sport_name.keyword' } } },
-          { date: { terms: { field: 'date' } } }
-        ] as const
-      }
-    }
-  }
-
-  return aggs;
-}
-
 function buildQuery({
   q,
   date,
@@ -55,7 +39,11 @@ function buildQuery({
   duration?: number;
   clubNames?: string[];
   sportNames?: string[];
-}) {
+}): {
+  query: any;
+  parsedDate: string | null;
+  parsedTime: string | null;
+} {
   const query: any = {
     bool: {
       must: [],
@@ -63,15 +51,48 @@ function buildQuery({
     }
   };
 
-  // NLP fallback using full-text fields
+  // Defaults in case q is not used
+  let parsedDate: string | null = null;
+  let parsedTime: string | null = null;
+
+  // fallback using full-text fields and fuzzy search
   if (q && q.trim() !== '') {
+    const normalizedQ = q.trim().replace(/\s+/g, ' ').toLowerCase();
+    const { date: extractedDate, timeRange } = extractDateTime(q);
+
+    parsedDate = extractedDate || null;
+
     query.bool.must.push({
-      multi_match: {
-        query: q,
-        fields: ['club_name', 'sport_name', 'description'],
-        fuzziness: 'AUTO'
-      }
+        match: {
+          description: {
+            query: normalizedQ,
+            fuzziness: 'AUTO',
+            //operator: 'and'
+          }
+        }
     });
+
+    if (parsedDate) {
+      query.bool.filter.push({ term: { date: parsedDate } });
+      query.bool.filter.push({ range: { duration: { gte: 60 } }});
+    }
+
+    if (timeRange.length) {
+      const startTimeStr = timeRange[0]; // "18:00:00"
+      const hhmm = startTimeStr.slice(0, 5);
+      parsedTime = hhmm;
+
+      const startTimeMins = timeStrToMinutes(hhmm);
+
+      if (!isNaN(startTimeMins)) {
+        query.bool.filter.push({
+          range: {
+            start_time: { gte: startTimeMins }
+          }
+        });
+      }
+    }
+
   } else {
     // Structured filter queries
     if (date.length === 1) {
@@ -109,11 +130,11 @@ function buildQuery({
     }
   }
 
-  return query;
-}
-
-export async function searchSlots(searchParams: Record<string, unknown>) {
-
+  return {
+    query,
+    parsedDate,
+    parsedTime
+  };
 }
 
 export async function searchGrouped(searchParams: Record<string, unknown>) {
@@ -134,7 +155,6 @@ export async function searchGrouped(searchParams: Record<string, unknown>) {
 
   const parsed = schema.safeParse(searchParams);
   if (!parsed.success) {
-    //return Response.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
       throw new Error('Invalid search parameters: ' + JSON.stringify(parsed.error.flatten().fieldErrors));
   }
 
@@ -154,7 +174,7 @@ export async function searchGrouped(searchParams: Record<string, unknown>) {
 
   //console.log(`'${q}'`, dates, timeMins, duration, sportNames, clubNames);
 
-  const query = buildQuery({
+  const {query, parsedDate, parsedTime} = buildQuery({
     q,
     date: dates,
     timeMins,
@@ -162,9 +182,6 @@ export async function searchGrouped(searchParams: Record<string, unknown>) {
     sportNames,
     clubNames
   });
-
-  const aggs = buildGrouping();
-  //console.log(aggs);
 
   console.log('ES query', JSON.stringify(query));
 
@@ -195,10 +212,10 @@ export async function searchGrouped(searchParams: Record<string, unknown>) {
     //const records = response.hits.hits.map(hit => hit._source);
     const records = (response.aggregations?.agg_club_sport_date as any)?.buckets || [];
     //console.log(JSON.stringify(records));
-    return records;
+    return {records, parsedDate, parsedTime};
   } catch (err) {
     console.error('❌ ES query failed:', err);
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+    throw new Error('Internal server error');
   } finally{
     // const t1 = performance.now();
     // console.log(`🚀 exec time ${(t1 - t0).toFixed(2)} ms`);
