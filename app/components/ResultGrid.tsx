@@ -1,6 +1,20 @@
 import ResultCard from "./ResultCard";
 import { ResultCardProps } from "./ResultCard";
 import { searchGrouped } from "@/app/lib/search";
+import { DrawerViewer } from "@/app/ui/DrawerViewer";
+
+type CourtBucket = {
+  key: string;
+  doc_count: number;
+};
+
+type TimeSlotBucket = {
+  key: number;
+  doc_count: number;
+  court_names?: {
+    buckets: CourtBucket[];
+  };
+};
 
 export default async function ResultGrid({
   searchParams,
@@ -17,10 +31,12 @@ export default async function ResultGrid({
 
   const records = typedData.map((record: any) => {
     const [clubId, clubName, sportName, date, imgSrc] = record.key.split(':::');
-    
+
     const availableTimes = (record.start_times?.buckets ?? [])
-      .map((timeSlot: { key: number; doc_count: number }) => timeSlot.key)
-      .sort((a: number, b: number) => a - b);
+      .map((timeSlot: TimeSlotBucket) => {
+        return {time: timeSlot.key, availableCourts: (timeSlot.court_names?.buckets ?? []).map((court) => court.key)}
+      })
+      .sort((a: { time: number }, b: { time: number }) => a.time - b.time);
 
     return {
       clubId,
@@ -35,12 +51,13 @@ export default async function ResultGrid({
   })
   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  // console.log(records);
+  //console.log(JSON.stringify(records));
 
   return (
     <>
     {records &&
       <>
+      <DrawerViewer dataMap={records} />
       <div className="mb-2 md:mb-5 px-1 text-xs text-gray-500">{data.length > 0 ? <span>{data.length} places found.</span> : <span>Nothing found :(</span>}</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-5">
         {records.map((record, index) => (

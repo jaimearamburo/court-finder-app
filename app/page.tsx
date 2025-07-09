@@ -10,6 +10,8 @@ import { ResultGridSkeleton } from "./ui/skeletons";
 import { SearchFiltersContextProvider } from "./store/SearchFiltersContext";
 import ResultGridWrapper from "./components/ResultGridWrapper";
 import LoadingFallback from "./ui/LoadingFallback";
+import { DrawerContextProvider } from "./store/DrawerContext";
+import { DrawerViewer } from "./ui/DrawerViewer";
 
 export default async function Page({
   searchParams,
@@ -38,18 +40,16 @@ export default async function Page({
             <section className="bg-white px-0 py-2 md:py-3 md:mb-2">
               <FilterBar />
             </section>
-            
-            {/* Hero Section */ }
-            <Hero />
-
-            {/* <LoadingFallback fallback={<ResultGridSkeleton />}> */}
-              <Suspense key={resultsSuspenseKey} fallback={<ResultGridSkeleton />}>
-                <ResultGridWrapper>
-                  <ResultGrid searchParams={resolvedParams} />
-                </ResultGridWrapper>
-              </Suspense>
-            {/* </LoadingFallback> */}
           </SearchFiltersContextProvider>
+            
+          {/* Hero Section */ }
+          <Hero />
+
+          <DrawerContextProvider>
+            <Suspense key={resultsSuspenseKey} fallback={<ResultGridSkeleton />}>
+              <ResultGrid searchParams={resolvedParams} />
+            </Suspense>
+          </DrawerContextProvider>
         </div>
       </main>
     </div>

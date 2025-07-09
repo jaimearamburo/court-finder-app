@@ -202,6 +202,14 @@ export async function searchGrouped(searchParams: Record<string, unknown>) {
             "terms": {
               "field": "start_time",
               "size": 100
+            },
+            "aggs": {
+              "court_names": {
+                "terms": {
+                  "field": 'court_name.keyword',
+                  "size": 100
+                }
+              }
             }
           }
         }
