@@ -18,6 +18,16 @@ input[type='number']::-webkit-outer-spin-button {
   margin: 0;
 }
 
+.nodetect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-text-size-adjust: none;
+  -webkit-user-modify: read-only;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-text-decoration-skip: none;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

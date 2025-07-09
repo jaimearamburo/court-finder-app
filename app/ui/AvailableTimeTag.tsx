@@ -2,16 +2,8 @@
 
 import React from "react";
 import { useDrawerActions } from "@/app/store/DrawerContext"
+import { formatTime } from "@/app/lib/utils"
 
-const formatTime = (minutes: number)  => {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  const isPM = hours >= 12;
-  const displayHour = hours % 12 === 0 ? 12 : hours % 12;
-  const suffix = isPM ? 'pm' : 'am';
-
-  return `${displayHour}${mins !== 0 ? `:${String(mins).padStart(2, '0')}` : ''}${suffix}`;
-}
 
 const AvailableTimeTag = React.memo(function AvailableTimeTag({ clubId, time, date, isHighlighted }: { clubId: number; time: number; date: string; isHighlighted: boolean }) {
   const { openDrawer } = useDrawerActions()

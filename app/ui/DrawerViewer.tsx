@@ -2,6 +2,7 @@
 
 import { useDrawerState } from "@/app/store/DrawerContext"
 import { useDrawerActions } from "@/app/store/DrawerContext"
+import { formatTime } from "@/app/lib/utils"
 import {
   Drawer,
   DrawerClose,
@@ -49,9 +50,12 @@ export function DrawerViewer({ dataMap }: { dataMap: Record<string, any> }) {
   return (
     <Drawer open={open} onOpenChange={closeDrawer}>
       <DrawerContent>
-        <div className="mx-auto w-full max-w-sm min-h-52">
+        <div className="mx-auto w-full max-w-sm min-h-48">
           <DrawerHeader>
-            <DrawerTitle>Courts available at {selectedId?.time}</DrawerTitle>
+            <DrawerTitle className="text-left px-1">
+              <span className="text-lg text-blue-900">{selectedId?.time !== undefined && formatTime(selectedId.time)}</span> 
+              <span className="text-sm">{` @ ${itemData?.clubName}`}</span>
+            </DrawerTitle>
           </DrawerHeader>
           <div className="p-4">
             {itemData && availableCourts && availableCourts.length > 0 ? (
@@ -59,7 +63,7 @@ export function DrawerViewer({ dataMap }: { dataMap: Record<string, any> }) {
                 {availableCourts.map((court: string, idx: number) => (
                   <li
                     key={idx}
-                    className="inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full"
+                    className="nodetect inline-block bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full"
                   >
                     {court}
                   </li>
@@ -71,7 +75,7 @@ export function DrawerViewer({ dataMap }: { dataMap: Record<string, any> }) {
           </div>
           <DrawerFooter>
             <DrawerClose asChild>
-              <Button variant="outline">Ok</Button>
+              <Button variant="outline">OK</Button>
             </DrawerClose>
           </DrawerFooter>
         </div>
