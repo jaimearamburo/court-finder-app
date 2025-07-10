@@ -4,7 +4,7 @@ export default function Hero() {
 
       <div className="p-4 md:p-6 relative z-20">
         <h1 className="text-2xl md:text-5xl font-bold text-black mb-0 md:mb-3">
-          Wanna play? <span className="">Play</span>.
+          Reilly, wanna play? <span className="">Play</span>.
         </h1>
         <p className="text-gray-600 text-sm md:text-lg">
           Search <b>current</b> availability for your favorite sports.
