@@ -55,6 +55,7 @@ export function Calendar24({ date, time, onSelectDate, onSelectTime }: Calendar2
                 onSelectDate(date);
                 setOpen(false);
               }}
+              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
             />
           </PopoverContent>
         </Popover>

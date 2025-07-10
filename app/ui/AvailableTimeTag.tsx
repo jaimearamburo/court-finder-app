@@ -12,12 +12,15 @@ const AvailableTimeTag = React.memo(function AvailableTimeTag({ clubId, time, da
 
   const className = isHighlighted
     ? 'bg-green-600 text-white'
-    : 'bg-gray-700 text-gray-200'
+    : 'bg-gray-100 text-gray-500'
 
   return (
     <span
       onClick={() => openDrawer({clubId, date, time})}
-      className={`inline-block text-xs px-2 py-0.5 rounded-[3px] font-mono cursor-pointer transition ${className}`}
+      style={{
+        boxShadow: '2px 2px 5px #e6e6e6, -3px -3px 5px #ffffff',
+      }}
+      className={`inline-block text-xs px-2 py-1 rounded-md font-mono cursor-pointer transition ${className}`}
     >
       {formatTime(time)}
     </span>

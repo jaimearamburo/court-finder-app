@@ -71,7 +71,7 @@ export default function ResultCard({ clubId, clubName, sportName, date, imgSrc, 
   console.log('rendering result card ...');
 
   return (
-    <div className="rounded-lg overflow-hidden shadow hover:shadow-md transition w-full bg-gray-50">
+    <div className="rounded-lg overflow-hidden shadow hover:shadow-md transition w-full bg-[#f7f7f7]">
       <Image
         src={imgSrc}
         width={640}
@@ -80,7 +80,7 @@ export default function ResultCard({ clubId, clubName, sportName, date, imgSrc, 
         alt="image"
       />
 
-      <div className="p-2 pb-3 pr-3" title={clubName}>
+      <div className="p-2 pb-0 pr-3" title={clubName}>
 
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-stretch space-x-2">
@@ -122,7 +122,8 @@ export default function ResultCard({ clubId, clubName, sportName, date, imgSrc, 
         <div className="text-sm">
 
           <div className="relative">
-            <div className="flex overflow-x-hidden whitespace-nowrap gap-x-1 pt-0">
+
+            <div className="flex whitespace-nowrap gap-x-2 pt-0 overflow-x-hidden pb-3">
               {availableTimes.map((timeSlot) => (
                 <AvailableTimeTag 
                   key={timeSlot.time}
@@ -133,8 +134,9 @@ export default function ResultCard({ clubId, clubName, sportName, date, imgSrc, 
                 />
               ))}
             </div>
+
             {/* Fade effect */}
-            <div className="pointer-events-none absolute right-0 top-0 h-full w-5 bg-gradient-to-l from-white to-transparent" />
+            <div className="pointer-events-none absolute right-0 top-0 h-full w-5 bg-gradient-to-l from-[#f7f7f7] to-transparent" />
           </div>
         </div> 
 
