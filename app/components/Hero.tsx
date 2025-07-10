@@ -1,7 +1,8 @@
 export default function Hero() {
   return (
-    <div className="bg-gradient-to-r from-orange-100 to-pink-100 sm:rounded-md overflow-hidden mb-2 md:mb-5 -mx-2 sm:mx-0">
-      <div className="p-3 md:p-6">
+    <div className="relative bg-gradient-to-r from-orange-100 to-pink-100 sm:rounded-md overflow-hidden mb-2 md:mb-5 -mx-2 sm:mx-0">
+
+      <div className="p-4 md:p-6 relative z-20">
         <h1 className="text-2xl md:text-5xl font-bold text-black mb-0 md:mb-3">
           Wanna play? <span className="">Play</span>.
         </h1>
