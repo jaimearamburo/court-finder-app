@@ -8,7 +8,7 @@ import { formatTime } from "@/app/lib/utils"
 const AvailableTimeTag = React.memo(function AvailableTimeTag({ clubId, time, date, isHighlighted }: { clubId: number; time: number; date: string; isHighlighted: boolean }) {
   const { openDrawer } = useDrawerActions()
 
-  console.log('rendering time tag...');
+  //console.log('rendering time tag...');
 
   const className = isHighlighted
     ? 'bg-green-600 text-white'
