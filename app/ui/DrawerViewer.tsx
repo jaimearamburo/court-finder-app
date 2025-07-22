@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
 
+const toDateString = (d: string | Date) =>
+  typeof d === 'string' ? d.slice(0, 10) : d.toISOString().slice(0, 10);
+
 interface TimeSlot {
   time: number;
   availableCourts: string[];
@@ -21,7 +24,6 @@ interface TimeSlot {
 export function DrawerViewer({ dataMap }: { dataMap: Record<string, any> }) {
   const { open, selectedId } = useDrawerState()
   const { closeDrawer } = useDrawerActions()
-  //const itemData = selectedId ? dataMap[selectedId] : null
 
   const itemData = selectedId
     ? dataMap.find(
@@ -31,7 +33,7 @@ export function DrawerViewer({ dataMap }: { dataMap: Record<string, any> }) {
           availableTimes: { time: number; availableCourts: string[] }[];
         }) =>
           Number(item.clubId) === Number(selectedId.clubId) &&
-          item.date === selectedId.date &&
+          toDateString(item.date) === toDateString(selectedId.date) &&
           item.availableTimes.some((slot) => slot.time === selectedId.time)
       )
     : null;

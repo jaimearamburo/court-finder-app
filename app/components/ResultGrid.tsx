@@ -1,6 +1,7 @@
 import ResultCard from "./ResultCard";
 import { ResultCardProps } from "./ResultCard";
 import { searchGrouped } from "@/app/lib/search";
+import { searchGroupedPg } from "@/app/lib/queries";
 import { DrawerViewer } from "@/app/ui/DrawerViewer";
 
 type CourtBucket = {
@@ -21,7 +22,8 @@ export default async function ResultGrid({
 }: {
   searchParams: Record<string, string | undefined>,
 }) {
-  const { records: data, parsedDate, parsedTime } = await searchGrouped(searchParams);
+  //const { records: data, parsedDate, parsedTime } = await searchGrouped(searchParams);
+  const { records: data, parsedDate, parsedTime } = await searchGroupedPg(searchParams);
   const typedData = data as ResultCardProps[];
 
   const requestedStartTime = parsedTime ?? (typeof searchParams.time === 'string' ? searchParams.time : undefined);
@@ -30,13 +32,18 @@ export default async function ResultGrid({
   // console.log(requestedStartTime);
 
   const records = typedData.map((record: any) => {
-    const [clubId, clubName, sportName, date, imgSrc] = record.key.split(':::');
-
-    const availableTimes = (record.start_times?.buckets ?? [])
-      .map((timeSlot: TimeSlotBucket) => {
-        return {time: timeSlot.key, availableCourts: (timeSlot.court_names?.buckets ?? []).map((court) => court.key)}
-      })
-      .sort((a: { time: number }, b: { time: number }) => a.time - b.time);
+    const {
+      club_id: clubId, 
+      club_name: clubName, 
+      sport_name: sportName, 
+      booking_date: date, 
+      image_path: imgSrc,
+      start_times: availableTimes,
+    } = record;
+                
+    // sort start times
+    // const availableTimes = (record.start_times ?? [])
+    //   .sort((a: { time: number }, b: { time: number }) => a.time - b.time);
 
     return {
       clubId,
@@ -44,12 +51,12 @@ export default async function ResultGrid({
       sportName,
       date,
       imgSrc,
-      count: record.doc_count,
+      count: 0,
       availableTimes,
       requestedStartTime,
     };
-  })
-  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  });
+  //.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   //console.log(JSON.stringify(records));
 

@@ -33,7 +33,6 @@ export function DrawerContextProvider({ children }: { children: ReactNode }) {
   const [selectedId, setSelectedId] = useState<SelectedId>(null);
 
   const openDrawer = useCallback((id: { clubId: number; date: string; time: number }) => {
-
     setSelectedId(id);
     setOpen(true);
   }, []);
