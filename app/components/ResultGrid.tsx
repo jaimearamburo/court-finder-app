@@ -1,6 +1,6 @@
 import ResultCard from "./ResultCard";
 import { ResultCardProps } from "./ResultCard";
-import { searchGrouped } from "@/app/lib/search";
+// import { searchGrouped } from "@/app/lib/search";
 import { searchGroupedPg } from "@/app/lib/queries";
 import { DrawerViewer } from "@/app/ui/DrawerViewer";
 

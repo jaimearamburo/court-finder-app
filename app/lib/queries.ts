@@ -48,7 +48,6 @@ function groupStartTimes(data: any[]) {
 }
 
 export async function searchGroupedPg(searchParams: Record<string, unknown>) {
-
   const schema = z.object({
     q: z.string().optional(),
     date: z.string().optional().default(format(new Date(), 'yyyy-MM-dd')),
