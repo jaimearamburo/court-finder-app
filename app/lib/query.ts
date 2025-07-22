@@ -26,7 +26,7 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 export async function getSraperLogPG() {
   const query = sql`
-    SELECT log_message as log FROM availability_logs
+    SELECT log_message, created_at FROM availability_logs
     ORDER BY created_at DESC
     LIMIT 1`;
 
