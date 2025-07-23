@@ -2,10 +2,12 @@
 import { useEffect, useState } from 'react';
 import { AutoReload } from './AutoReload';
 
-type LiveUpdatedMessageProps = { date: Date, className?: string };
+type LiveUpdatedMessageProps = { dateIso: string; className?: string };
 
-export function LiveUpdatedMessage({ date, className = '' }: LiveUpdatedMessageProps) {
+export function LiveUpdatedMessage({ dateIso, className = '' }: LiveUpdatedMessageProps) {
   const [now, setNow] = useState<Date | null>(null);
+
+  const date = new Date(dateIso);
 
   useEffect(() => {
     setNow(new Date()); // set initial now on client only
