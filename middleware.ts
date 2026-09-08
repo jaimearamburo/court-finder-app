@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidQ } from '@/app/lib/utils'
 
 // This function runs before rendering any matching route
 export function middleware(request: NextRequest) {

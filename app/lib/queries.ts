@@ -199,3 +199,15 @@ export async function findNextAvailableDates(
 
   return rows.map((r: any) => toISODateString(r.booking_date));
 }
+
+// scraper logs
+export async function getScraperLogPG() {
+  const query = sql`
+    SELECT log_message, created_at FROM availability_logs
+    ORDER BY created_at DESC
+    LIMIT 1`;
+
+  const records = await query;
+
+  return records;
+}

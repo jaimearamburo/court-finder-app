@@ -59,7 +59,7 @@ export default function ResultCard({ clubId, clubName, bookingUrl, sportName, da
         width={640}
         height={360}
         className="w-full h-44 object-cover hidden md:block"
-        alt="image"
+        alt={clubName}
       />
 
       <div className="p-2 pb-0 pr-3" title={clubName}>

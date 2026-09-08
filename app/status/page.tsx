@@ -1,10 +1,10 @@
 export const dynamic = 'force-dynamic';
 
-import { getSraperLogPG } from '@/app/lib/query'
+import { getScraperLogPG } from '@/app/lib/queries'
 import { LiveUpdatedMessage } from '@/app/components/LiveUpdatedMessage';
 
 export default async function LogsDisplay() {
-  const logs = await getSraperLogPG();
+  const logs = await getScraperLogPG();
 
   return (
     <div className="whitespace-pre-wrap font-mono">
