@@ -2,6 +2,8 @@
 
 Aggregates court and session availability across multiple sports clubs into a single searchable view — instead of checking five different booking sites to find a free court, check one.
 
+**[Live demo →](https://court-finder-app.vercel.app/)**
+
 ![Court Finder landing page](docs/landing-screenshot.png)
 
 ## What it does
