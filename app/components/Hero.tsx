@@ -6,7 +6,7 @@ export default function Hero() {
         <h1 className="text-2xl md:text-5xl font-bold text-black mb-0 md:mb-3 -ml-1">
           Game on.
         </h1>
-        <p className="text-gray-600 text-sm md:text-lg p">
+        <p className="text-gray-600 text-sm md:text-lg">
           One search. Every club. <b>Real time</b> availability - right now.
         </p>
       </div>
