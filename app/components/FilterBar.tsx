@@ -106,16 +106,13 @@ export default function FilterBar({ className = '' }) {
     throw new Error("SearchFiltersContext not found — make sure the provider is wrapped.");
   }
 
-  const { searchFilters, setSearchFilters, isSearching, setIsSearching, query } = searchFiltersContext;
+  const { searchFilters, setSearchFilters, setDateFilter, isSearching, setIsSearching, query } = searchFiltersContext;
 
   function handleSelectDate(date: Date | undefined){
     if (!date) return;
     const yyyyMmDd = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-    setSearchFilters((prev) => ({
-      ...prev,
-      date: yyyyMmDd,
-    }));
+    setDateFilter(yyyyMmDd);
   }
 
   function handleSelectTime(time: string | undefined){

@@ -17,6 +17,7 @@ export interface SearchFilters {
 type ContextType = {
   searchFilters: SearchFilters;
   setSearchFilters: React.Dispatch<React.SetStateAction<SearchFilters>>;
+  setDateFilter: (date: string) => void;
   isSearching: boolean;
   setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
   query: string;
@@ -37,6 +38,7 @@ const DEFAULT_SEARCH_FILTERS: SearchFilters = {
 export const SearchFiltersContext = createContext<ContextType>({
   searchFilters: {},
   setSearchFilters: () => {},
+  setDateFilter: () => {},
   isSearching: false,
   setIsSearching: () => {},
   query: '',
@@ -47,6 +49,10 @@ export function SearchFiltersContextProvider({ children }: { children: ReactNode
   const [isSearching, setIsSearching] = useState<boolean>(true);
   const [query, setQuery] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
+  // Tracks whether the user has explicitly picked a date via the filter bar.
+  // Until then, `date` is kept out of the URL so the landing page shows a
+  // default multi-day view instead of a single-date grid line before.
+  const [dateFilterActive, setDateFilterActive] = useState(false);
 
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -93,6 +99,7 @@ export function SearchFiltersContextProvider({ children }: { children: ReactNode
     };
 
     setSearchFilters(hydratedFilters);
+    setDateFilterActive(Boolean(searchParams.get('date')));
     setIsHydrated(true);
 
     //console.log('hydrating filters from url', searchFilters);
@@ -110,8 +117,11 @@ export function SearchFiltersContextProvider({ children }: { children: ReactNode
   const handleApplyFilters = () => {
     const params = new URLSearchParams();
 
-    // Add each filter to the URL query string
+    // Add each filter to the URL query string. `date` is only included once
+    // the user has explicitly picked one, until then it stays out of the
+    // URL so the landing page renders the multi-day view.
     Object.entries(searchFilters).forEach(([key, value]) => {
+      if (key === 'date' && !dateFilterActive) return;
       if (value) {
         params.set(key, String(value));
       }
@@ -123,9 +133,15 @@ export function SearchFiltersContextProvider({ children }: { children: ReactNode
     replace(`${pathname}?${params.toString().toLowerCase()}`,{ scroll: false });
   };
 
+  const setDateFilter = (date: string) => {
+    setDateFilterActive(true);
+    setSearchFilters((prev) => ({ ...prev, date }));
+  };
+
   const contextValue = {
     searchFilters,
     setSearchFilters,
+    setDateFilter,
     isSearching,
     setIsSearching,
     query,

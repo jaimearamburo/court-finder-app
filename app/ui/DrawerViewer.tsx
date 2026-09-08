@@ -3,6 +3,7 @@
 import { useDrawerState } from "@/app/store/DrawerContext"
 import { useDrawerActions } from "@/app/store/DrawerContext"
 import { formatTime } from "@/app/lib/utils"
+import { toISODateString } from "@/app/lib/dateSections"
 import {
   Drawer,
   DrawerClose,
@@ -12,9 +13,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-
-const toDateString = (d: string | Date) =>
-  typeof d === 'string' ? d.slice(0, 10) : d.toISOString().slice(0, 10);
 
 interface TimeSlot {
   time: number;
@@ -33,7 +31,7 @@ export function DrawerViewer({ dataMap }: { dataMap: Record<string, any> }) {
           availableTimes: { time: number; availableCourts: string[] }[];
         }) =>
           Number(item.clubId) === Number(selectedId.clubId) &&
-          toDateString(item.date) === toDateString(selectedId.date) &&
+          toISODateString(item.date) === toISODateString(selectedId.date) &&
           item.availableTimes.some((slot) => slot.time === selectedId.time)
       )
     : null;
