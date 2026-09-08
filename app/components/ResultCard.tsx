@@ -2,23 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import AvailableTimeTag from "@/app/ui/AvailableTimeTag";
 
-const clubsLinks = [
-  { name: 'coogee', link: 'https://www.tennisvenues.com.au/booking/eastern-suburbs-tennis-club' },
-  { name: 'Surry Hills', link: 'https://jensenstennis.intrac.com.au/tennis/book.cfm?facility=1' },
-  { name: 'Rushcutters', link: 'https://www.rushcuttersbaytennis.com.au/book-a-court/' },
-  { name: 'Mutch', link: 'https://www.mutchparksports.com.au/tennis/' },
-  { name: 'Primrose', link: 'https://www.tennisvenues.com.au/booking/primrose-park-tc' },
-  { name: 'Lyne', link: 'http://www.lptc.com.au/courthire' },
-  { name: 'Trumper', link: 'https://www.wentworthtennis.com/court_hire' },
-  { name: 'Little Alfred', link: 'https://www.littlealfredtennis.com.au/booknow' },
-  { name: 'Langham', link: 'https://langham.intrac.com.au/tennis/book.cfm' },
-  { name: 'Alexandria', link: 'https://jensenstennis.intrac.com.au/tennis/book.cfm?facility=2' },
-  { name: 'Glebe', link: 'https://jensenstennis.intrac.com.au/tennis/book.cfm?facility=4' },
-];
-
 export interface ResultCardProps {
   clubId: number;
   clubName: string;
+  bookingUrl?: string;
   sportName: string;
   date: string;
   imgSrc: string;
@@ -63,12 +50,7 @@ function parseTimeStringToMinutes(timeStr: string | undefined): number | null {
   return parseInt(hours, 10) * 60 + parseInt(minutes, 10);
 }
 
-export default function ResultCard({ clubId, clubName, sportName, date, imgSrc, count, availableTimes, requestedStartTime }: ResultCardProps) {
-  const matchedClubLink = clubsLinks.find(club =>
-    clubName.toLowerCase().includes(club.name.toLowerCase())
-  );
-
-  console.log('rendering result card ...');
+export default function ResultCard({ clubId, clubName, bookingUrl, sportName, date, imgSrc, count, availableTimes, requestedStartTime }: ResultCardProps) {
 
   return (
     <div className="rounded-lg overflow-hidden shadow hover:shadow-md transition w-full bg-[#f7f7f7]">
@@ -89,9 +71,9 @@ export default function ResultCard({ clubId, clubName, sportName, date, imgSrc, 
             </div>
             <div className="flex flex-col justify-center">
 
-              {matchedClubLink ? (
+              {bookingUrl ? (
                 <Link
-                  href={matchedClubLink.link}
+                  href={bookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-gray-900 text-sm leading-snug line-clamp-1 underline hover:text-blue-900"

@@ -33,10 +33,11 @@ export default async function ResultGrid({
 
   const records = typedData.map((record: any) => {
     const {
-      club_id: clubId, 
-      club_name: clubName, 
-      sport_name: sportName, 
-      booking_date: date, 
+      club_id: clubId,
+      club_name: clubName,
+      booking_url: bookingUrl,
+      sport_name: sportName,
+      booking_date: date,
       image_path: imgSrc,
       start_times: availableTimes,
     } = record;
@@ -48,6 +49,7 @@ export default async function ResultGrid({
     return {
       clubId,
       clubName,
+      bookingUrl,
       sportName,
       date,
       imgSrc,

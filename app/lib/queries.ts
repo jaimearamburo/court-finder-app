@@ -91,6 +91,7 @@ export async function searchGroupedPg(searchParams: Record<string, unknown>) {
     SELECT 
       c.id AS club_id,
       c.name AS club_name,
+      c.booking_url,
       s.name AS sport_name,
       a.booking_date,
       c.image_path,
@@ -123,7 +124,7 @@ export async function searchGroupedPg(searchParams: Record<string, unknown>) {
           ? sql`LOWER(s.name) = ANY(${sportNames.map(n => n.toLowerCase())})`
           : sql`TRUE`
       }
-    GROUP BY c.id ,c.name, s.name, a.booking_date, c.image_path
+    GROUP BY c.id ,c.name, c.booking_url, s.name, a.booking_date, c.image_path
     ORDER BY a.booking_date ASC
     LIMIT 1000;
   ` as any;
